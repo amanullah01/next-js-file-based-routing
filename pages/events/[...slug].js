@@ -28,7 +28,7 @@ const EventsSlug = () => {
   if (isNaN(numMonth) || isNaN(numYear) || numMonth < 1 || numMonth > 12) {
     return (
       <ErrorAlert>
-        <p className="center">Invalid filter</p>;
+        <p className="center">Invalid filter</p>
       </ErrorAlert>
     );
   }

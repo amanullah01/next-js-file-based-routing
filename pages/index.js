@@ -8,9 +8,10 @@ const HomePage = (props) => {
     </div>
   );
 };
-export default HomePage;
 
 export const getStaticProps = async () => {
   const get_featured_data = await getFeaturedEventsFireBase();
-  return { props: { events: get_featured_data } };
+  return { props: { events: get_featured_data }, revalidate: 10 };
 };
+
+export default HomePage;

@@ -18,3 +18,8 @@ export const getFeaturedEventsFireBase = async () => {
   const allEvents = await getAllEvents();
   return allEvents.filter((event) => event.isFeatured);
 };
+
+export async function getEventByIdFireBase(id) {
+  const allEvents = await getAllEvents();
+  return allEvents.find((event) => event.id === id);
+}
