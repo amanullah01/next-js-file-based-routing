@@ -1,4 +1,4 @@
-const EventsPage = () => {
-  return <h1>This is EventsPage</h1>;
+const AllEventsPage = () => {
+  return <h1>This is AllEventsPage</h1>;
 };
-export default EventsPage;
+export default AllEventsPage;
