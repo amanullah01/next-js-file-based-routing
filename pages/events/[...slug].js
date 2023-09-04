@@ -10,7 +10,7 @@ import useSWR from "swr";
 
 const EventsSlug = (props) => {
   const router = useRouter();
-  const [loadedEvents, setLoadedEvents] = useState([]);
+  const [loadedEvents, setLoadedEvents] = useState();
   const filterData = router.query.slug;
 
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
@@ -33,12 +33,8 @@ const EventsSlug = (props) => {
     }
   }, [data]);
 
-  if (!filterData) {
-    return (
-      <ErrorAlert>
-        <p className="center">Loading...</p>
-      </ErrorAlert>
-    );
+  if (!loadedEvents) {
+    return <p className="center">Loading...</p>;
   }
 
   const filteredYear = filterData[0];
