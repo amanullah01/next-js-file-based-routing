@@ -4,6 +4,7 @@ import Button from "@/components/ui/button";
 import ErrorAlert from "@/components/ui/error-alert/error-alert";
 import { getFilteredEvents } from "@/dummy-data";
 import { getFilteredEventsFirebase } from "@/helper/api-util";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import useSWR from "swr";
@@ -33,8 +34,20 @@ const EventsSlug = (props) => {
     }
   }, [data]);
 
+  let headerContent = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta name="description" content={`All filtered events`} />
+    </Head>
+  );
+
   if (!loadedEvents) {
-    return <p className="center">Loading...</p>;
+    return (
+      <Fragment>
+        {headerContent}
+        <p className="center">Loading...</p>
+      </Fragment>
+    );
   }
 
   const filteredYear = filterData[0];
@@ -42,6 +55,16 @@ const EventsSlug = (props) => {
 
   const numYear = +filteredYear;
   const numMonth = +filteredMonth;
+
+  headerContent = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name="description"
+        content={`All events for ${numMonth}/${numYear}`}
+      />
+    </Head>
+  );
 
   if (
     isNaN(numMonth) ||
@@ -51,9 +74,12 @@ const EventsSlug = (props) => {
     error
   ) {
     return (
-      <ErrorAlert>
-        <p className="center">Invalid filter</p>
-      </ErrorAlert>
+      <Fragment>
+        {headerContent}
+        <ErrorAlert>
+          <p className="center">Invalid filter</p>
+        </ErrorAlert>
+      </Fragment>
     );
   }
 
@@ -73,6 +99,7 @@ const EventsSlug = (props) => {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
+        {headerContent}
         <ErrorAlert>
           <p>Sorry! no data found</p>
         </ErrorAlert>
@@ -87,6 +114,7 @@ const EventsSlug = (props) => {
 
   return (
     <Fragment>
+      {headerContent}
       <ResultsTitle date={date} />
       <EventList items={filteredEvents} />
     </Fragment>
