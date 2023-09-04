@@ -5,28 +5,55 @@ import ErrorAlert from "@/components/ui/error-alert/error-alert";
 import { getFilteredEvents } from "@/dummy-data";
 import { getFilteredEventsFirebase } from "@/helper/api-util";
 import { useRouter } from "next/router";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
+import useSWR from "swr";
 
 const EventsSlug = (props) => {
   const router = useRouter();
-  // const filterData = router.query.slug;
-  // console.log(filterData);
+  const [loadedEvents, setLoadedEvents] = useState([]);
+  const filterData = router.query.slug;
 
-  // if (!filterData) {
-  //   return (
-  //     <ErrorAlert>
-  //       <p className="center">Loading...</p>;
-  //     </ErrorAlert>
-  //   );
-  // }
+  const fetcher = (...args) => fetch(...args).then((res) => res.json());
+  const { data, error } = useSWR(
+    "https://react-http-request-test-12f89-default-rtdb.asia-southeast1.firebasedatabase.app/events.json",
+    fetcher
+  );
 
-  // const filteredYear = filterData[0];
-  // const filteredMonth = filterData[1];
+  useEffect(() => {
+    if (data) {
+      console.log("ue");
+      console.log(data);
+      const events = [];
 
-  // const numYear = +filteredYear;
-  // const numMonth = +filteredMonth;
+      for (const key in data) {
+        events.push({ id: key, ...data[key] });
+      }
 
-  if (props.hasError) {
+      setLoadedEvents(events);
+    }
+  }, [data]);
+
+  if (!filterData) {
+    return (
+      <ErrorAlert>
+        <p className="center">Loading...</p>
+      </ErrorAlert>
+    );
+  }
+
+  const filteredYear = filterData[0];
+  const filteredMonth = filterData[1];
+
+  const numYear = +filteredYear;
+  const numMonth = +filteredMonth;
+
+  if (
+    isNaN(numMonth) ||
+    isNaN(numYear) ||
+    numMonth < 1 ||
+    numMonth > 12 ||
+    error
+  ) {
     return (
       <ErrorAlert>
         <p className="center">Invalid filter</p>
@@ -34,7 +61,18 @@ const EventsSlug = (props) => {
     );
   }
 
-  const filteredEvents = props.events;
+  console.log("yes it is");
+  console.log(loadedEvents);
+
+  const filteredEvents = loadedEvents.filter((event) => {
+    const eventDate = new Date(event.date);
+    return (
+      eventDate.getFullYear() === numYear &&
+      eventDate.getMonth() === numMonth - 1
+    );
+  });
+
+  // const filteredEvents = props.events;
 
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
@@ -49,7 +87,7 @@ const EventsSlug = (props) => {
     );
   }
 
-  const date = new Date(props.date.year, props.date.month - 1);
+  const date = new Date(numYear, numMonth - 1);
 
   return (
     <Fragment>
@@ -59,29 +97,29 @@ const EventsSlug = (props) => {
   );
 };
 
-export async function getServerSideProps(context) {
-  const { params } = context;
+// export async function getServerSideProps(context) {
+//   const { params } = context;
 
-  const filterData = params.slug;
+//   const filterData = params.slug;
 
-  const filteredYear = filterData[0];
-  const filteredMonth = filterData[1];
+//   const filteredYear = filterData[0];
+//   const filteredMonth = filterData[1];
 
-  const numYear = +filteredYear;
-  const numMonth = +filteredMonth;
+//   const numYear = +filteredYear;
+//   const numMonth = +filteredMonth;
 
-  if (isNaN(numMonth) || isNaN(numYear) || numMonth < 1 || numMonth > 12) {
-    return { props: { hasError: true } /*notFound: true*/ };
-  }
+//   if (isNaN(numMonth) || isNaN(numYear) || numMonth < 1 || numMonth > 12) {
+//     return { props: { hasError: true } /*notFound: true*/ };
+//   }
 
-  const filteredEvents = await getFilteredEventsFirebase({
-    year: numYear,
-    month: numMonth,
-  });
+//   const filteredEvents = await getFilteredEventsFirebase({
+//     year: numYear,
+//     month: numMonth,
+//   });
 
-  return {
-    props: { events: filteredEvents, date: { year: numYear, month: numMonth } },
-  };
-}
+//   return {
+//     props: { events: filteredEvents, date: { year: numYear, month: numMonth } },
+//   };
+// }
 
 export default EventsSlug;
